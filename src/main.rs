@@ -1,17 +1,21 @@
-use std::{env};
-use std::fs; // For reading the file
+use minigrep::Config;
+use std::env;
+use std::process;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("An error occured: {:?}", err);
+        process::exit(1); // Terminates the program with the status code passed in.
+    });
+    //? unwrap_or_else method is used to write what the program should do when it
+    //? encounters an error.
 
-    let query = &args[1];
-    let filename = &args[2];
+    println!("Searching for {:?}", config.query);
+    println!("In file {:?}", config.filename);
 
-
-    println!("Searching for {:?}",query);
-    println!("In file {:?}",filename);
-
-    let contents = fs::read_to_string(filename).
-    expect("File does not exist.");
-    
-    println!("{:?}",contents)
+    if let Err(e) = minigrep::run(config) {
+        println!("Application error: {}", e);
+        process::exit(1)
+    }
 }
